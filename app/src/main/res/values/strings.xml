@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SP Speed Test</string>
+    <string name="tagline">Real internet speed, measured live</string>
+    <string name="start">START TEST</string>
+    <string name="stop">STOP</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="history">History</string>
+    <string name="servers">Servers</string>
+    <string name="settings">Settings</string>
+</resources>

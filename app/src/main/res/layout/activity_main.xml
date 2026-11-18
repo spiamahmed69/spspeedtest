@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@drawable/bg_gradient"
+    android:padding="16dp">
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="@string/app_name" android:textSize="26sp" android:textStyle="bold"
+        android:textColor="#FFFFFF" />
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="@string/tagline" android:textColor="#C7D6F5" android:textSize="13sp" />
+    <TextView android:id="@+id/networkInfo" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:text="Network: checking…"
+        android:textColor="#38BDF8" android:textSize="13sp" android:layout_marginTop="4dp" />
+
+    <ScrollView android:id="@+id/panelDashboard" android:layout_width="match_parent"
+        android:layout_height="0dp" android:layout_weight="1" android:layout_marginTop="8dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <com.spsiam.spspeedtest.SpeedometerView android:id="@+id/speedometer"
+                android:layout_width="match_parent" android:layout_height="260dp" />
+            <TextView android:id="@+id/liveSpeed" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:text="0.00 Mbps"
+                android:textSize="30sp" android:textStyle="bold" android:textColor="#FFFFFF"
+                android:gravity="center" />
+            <TextView android:id="@+id/phaseLabel" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:text="Ready — tap START to measure your real speed"
+                android:textColor="#C7D6F5" android:gravity="center" android:layout_marginTop="4dp" />
+            <ProgressBar android:id="@+id/progressBar" style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:max="100" android:progress="0" android:layout_marginTop="10dp" />
+            <Button android:id="@+id/startButton" android:layout_width="match_parent"
+                android:layout_height="56dp" android:text="@string/start" android:textSize="18sp"
+                android:textStyle="bold" android:textColor="#FFFFFF"
+                android:background="@drawable/btn_primary" android:layout_marginTop="12dp" />
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:layout_marginTop="14dp">
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:orientation="vertical" android:background="@drawable/card_bg" android:padding="12dp" android:layout_marginEnd="6dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="DOWNLOAD" android:textColor="#8AA0C8" android:textSize="12sp" />
+                    <TextView android:id="@+id/downloadValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="— Mbps" android:textColor="#FFFFFF" android:textSize="20sp" android:textStyle="bold" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:orientation="vertical" android:background="@drawable/card_bg" android:padding="12dp" android:layout_marginStart="6dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="UPLOAD" android:textColor="#8AA0C8" android:textSize="12sp" />
+                    <TextView android:id="@+id/uploadValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="— Mbps" android:textColor="#FFFFFF" android:textSize="20sp" android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:layout_marginTop="10dp">
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:orientation="vertical" android:background="@drawable/card_bg" android:padding="12dp" android:layout_marginEnd="4dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="PING" android:textColor="#8AA0C8" android:textSize="12sp" />
+                    <TextView android:id="@+id/pingValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="— ms" android:textColor="#FFFFFF" android:textSize="18sp" android:textStyle="bold" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:orientation="vertical" android:background="@drawable/card_bg" android:padding="12dp" android:layout_marginStart="4dp" android:layout_marginEnd="4dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="JITTER" android:textColor="#8AA0C8" android:textSize="12sp" />
+                    <TextView android:id="@+id/jitterValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="— ms" android:textColor="#FFFFFF" android:textSize="18sp" android:textStyle="bold" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:orientation="vertical" android:background="@drawable/card_bg" android:padding="12dp" android:layout_marginStart="4dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="LOSS" android:textColor="#8AA0C8" android:textSize="12sp" />
+                    <TextView android:id="@+id/lossValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="— %" android:textColor="#FFFFFF" android:textSize="18sp" android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Download speed graph" android:textColor="#C7D6F5" android:layout_marginTop="14dp" />
+            <com.spsiam.spspeedtest.GraphView android:id="@+id/downloadGraph"
+                android:layout_width="match_parent" android:layout_height="110dp"
+                android:background="@drawable/card_bg" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Upload speed graph" android:textColor="#C7D6F5" android:layout_marginTop="10dp" />
+            <com.spsiam.spspeedtest.GraphView android:id="@+id/uploadGraph"
+                android:layout_width="match_parent" android:layout_height="110dp"
+                android:background="@drawable/card_bg" />
+
+            <TextView android:id="@+id/ipInfo" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:text="IP / ISP: tap START to detect"
+                android:textColor="#C7D6F5" android:layout_marginTop="12dp" />
+            <TextView android:id="@+id/detailReport" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:text=""
+                android:textColor="#C7D6F5" android:layout_marginTop="6dp" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:layout_marginTop="10dp">
+                <Button android:id="@+id/shareButton" android:layout_width="0dp" android:layout_height="48dp"
+                    android:layout_weight="1" android:text="Share result" android:textColor="#FFFFFF"
+                    android:background="@drawable/btn_primary" android:layout_marginEnd="6dp" />
+                <Button android:id="@+id/copyButton" android:layout_width="0dp" android:layout_height="48dp"
+                    android:layout_weight="1" android:text="Copy result" android:textColor="#FFFFFF"
+                    android:background="@drawable/btn_primary" android:layout_marginStart="6dp" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout android:id="@+id/panelHistory" android:layout_width="match_parent"
+        android:layout_height="0dp" android:layout_weight="1" android:orientation="vertical"
+        android:visibility="gone" android:layout_marginTop="8dp">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Test history" android:textColor="#FFFFFF" android:textSize="20sp" android:textStyle="bold" />
+        <ListView android:id="@+id/historyList" android:layout_width="match_parent"
+            android:layout_height="0dp" android:layout_weight="1" android:layout_marginTop="8dp" />
+        <Button android:id="@+id/clearHistoryButton" android:layout_width="match_parent"
+            android:layout_height="48dp" android:text="Clear history" android:textColor="#FFFFFF"
+            android:background="@drawable/btn_stop" android:layout_marginTop="8dp" />
+    </LinearLayout>
+
+    <LinearLayout android:id="@+id/panelServers" android:layout_width="match_parent"
+        android:layout_height="0dp" android:layout_weight="1" android:orientation="vertical"
+        android:visibility="gone" android:layout_marginTop="8dp">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Test servers" android:textColor="#FFFFFF" android:textSize="20sp" android:textStyle="bold" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Servers are ranked by real measured ping. Tap one to select it."
+            android:textColor="#C7D6F5" android:layout_marginTop="4dp" />
+        <ListView android:id="@+id/serverList" android:layout_width="match_parent"
+            android:layout_height="0dp" android:layout_weight="1" android:layout_marginTop="8dp" />
+        <Button android:id="@+id/refreshServersButton" android:layout_width="match_parent"
+            android:layout_height="48dp" android:text="Re-measure server ping" android:textColor="#FFFFFF"
+            android:background="@drawable/btn_primary" android:layout_marginTop="8dp" />
+    </LinearLayout>
+
+    <LinearLayout android:id="@+id/panelSettings" android:layout_width="match_parent"
+        android:layout_height="0dp" android:layout_weight="1" android:orientation="vertical"
+        android:visibility="gone" android:layout_marginTop="8dp">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Settings" android:textColor="#FFFFFF" android:textSize="20sp" android:textStyle="bold" />
+        <CheckBox android:id="@+id/autoTestCheck" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Automatic speed test on app start" android:textColor="#FFFFFF" android:layout_marginTop="12dp" />
+        <CheckBox android:id="@+id/wifiOnlyCheck" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Auto test on Wi-Fi only" android:textColor="#FFFFFF" />
+        <CheckBox android:id="@+id/dataSaverCheck" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Data saver (smaller test, less mobile data)" android:textColor="#FFFFFF" />
+        <CheckBox android:id="@+id/darkThemeCheck" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Dark theme" android:textColor="#FFFFFF" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Measurement method: Download — real HTTPS GET to speed.cloudflare.com/__down (or OVH / Hetzner files as fallback). Upload — real HTTPS POST to speed.cloudflare.com/__up. Ping / jitter / loss — 10 real HTTPS requests, no simulated values. If a server is unavailable the test shows an error, never a fake result."
+            android:textColor="#C7D6F5" android:layout_marginTop="16dp" />
+    </LinearLayout>
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="56dp"
+        android:orientation="horizontal" android:layout_marginTop="8dp">
+        <Button android:id="@+id/navDashboard" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="Dashboard" android:textColor="#FFFFFF" android:background="@drawable/card_bg" />
+        <Button android:id="@+id/navHistory" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="History" android:textColor="#FFFFFF" android:background="@drawable/card_bg" />
+        <Button android:id="@+id/navServers" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="Servers" android:textColor="#FFFFFF" android:background="@drawable/card_bg" />
+        <Button android:id="@+id/navSettings" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="Settings" android:textColor="#FFFFFF" android:background="@drawable/card_bg" />
+    </LinearLayout>
+</LinearLayout>

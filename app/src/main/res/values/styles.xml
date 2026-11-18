@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@drawable/bg_gradient</item>
+        <item name="android:textColorPrimary">#FFFFFF</item>
+        <item name="android:textColorSecondary">#C7D6F5</item>
+        <item name="android:colorAccent">#38BDF8</item>
+    </style>
+    <style name="LightTheme" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/light_bg</item>
+        <item name="android:textColorPrimary">#0A1633</item>
+        <item name="android:textColorSecondary">#334155</item>
+        <item name="android:colorAccent">#2563EB</item>
+    </style>
+</resources>
