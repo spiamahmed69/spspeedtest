@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>xyp Speed Test — Real Internet Speed Test</title>
+<meta name="description" content="xyp Speed Test measures your real download, upload, ping, jitter and packet loss using actual network transfers. No simulated results.">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root{--bg:#0a1633;--bg2:#0f2040;--card:#16294f;--card2:#1e2f57;--text:#fff;--muted:#c7d6f5;--muted2:#8aa0c8;--accent:#38bdf8;--blue:#2563eb;--purple:#7c3aed;--border:#2e4a7a}
+body.light{--bg:#eef2fb;--bg2:#e2e8f8;--card:#ffffff;--card2:#f1f5f9;--text:#0a1633;--muted:#334155;--muted2:#64748b;--border:#cbd5e1}
+body{background:linear-gradient(135deg,var(--bg),var(--bg2) 55%,#1d4ed8);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh}
+body.light{background:linear-gradient(135deg,#eef2fb,#dbeafe)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:1rem}
+.muted{color:var(--muted)} .muted2{color:var(--muted2)}
+.grad{background:linear-gradient(90deg,#2563eb,#38bdf8,#7c3aed)}
+.btn-grad{background:linear-gradient(90deg,#2563eb,#38bdf8);color:#fff;border-radius:9999px}
+.btn-grad:disabled{opacity:.6}
+.gauge-arc{transition:stroke-dashoffset .25s ease}
+.tabbtn.active{background:linear-gradient(90deg,#2563eb,#38bdf8);color:#fff}
+input,select{background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:.6rem;padding:.5rem .75rem}
+@keyframes pulse-ring{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.15);opacity:0}}
+.testing .gauge-wrap{animation:pulse-ring 1.6s ease-out infinite}
+</style>
+</head>
+<body>
+<div class="max-w-5xl mx-auto px-4 py-6">
+  <header class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">xyp <span class="text-sky-400">Speed Test</span></h1>
+      <p class="muted text-sm mt-1">Real internet speed, measured live — no simulated results.</p>
+    </div>
+    <div class="flex gap-2">
+      <button id="themeBtn" class="card px-4 py-2 text-sm font-semibold">🌙 Dark / Light</button>
+      <button id="autoBtn" class="card px-4 py-2 text-sm font-semibold">▶ Auto test: Off</button>
+    </div>
+  </header>
+
+  <div id="errorBox" class="hidden mt-4 card !border-red-500 p-4 text-red-300 text-sm" role="alert"></div>
+
+  <!-- Dashboard -->
+  <main id="panel-dashboard" class="mt-6">
+    <div class="grid md:grid-cols-5 gap-4">
+      <section class="card md:col-span-3 p-5 text-center">
+        <div id="gaugeWrap" class="gauge-wrap relative w-64 h-64 mx-auto">
+          <svg viewBox="0 0 200 200" class="w-full h-full -rotate-[135deg]">
+            <circle cx="100" cy="100" r="82" fill="none" stroke="#24365e" stroke-width="14" stroke-linecap="round" stroke-dasharray="386 515" />
+            <circle id="gaugeArc" class="gauge-arc" cx="100" cy="100" r="82" fill="none" stroke="url(#ggrad)" stroke-width="14" stroke-linecap="round" stroke-dasharray="386 515" stroke-dashoffset="386" />
+            <defs><linearGradient id="ggrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2563eb"/><stop offset=".5" stop-color="#38bdf8"/><stop offset="1" stop-color="#7c3aed"/></linearGradient></defs>
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <div id="liveSpeed" class="text-4xl font-extrabold">0.00</div>
+            <div class="muted text-sm">Mbps</div>
+            <div id="phaseLabel" class="muted text-xs mt-2 px-3 text-center">Ready — tap START to measure your real speed</div>
+          </div>
+        </div>
+        <div class="w-full bg-slate-700/40 rounded-full h-2 mt-2"><div id="progressBar" class="grad h-2 rounded-full" style="width:0%"></div></div>
+        <button id="startBtn" class="btn-grad w-full md:w-72 py-4 text-lg font-bold mt-4">START TEST</button>
+        <div class="flex flex-wrap justify-center gap-2 mt-3 text-xs">
+          <label class="flex items-center gap-1"><input type="checkbox" id="dataSaver"> Data saver</label>
+          <label class="flex items-center gap-1"><input type="checkbox" id="wifiOnly"> Auto test on Wi-Fi only (where detectable)</label>
+        </div>
+      </section>
+
+      <section class="md:col-span-2 flex flex-col gap-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="card p-4"><div class="muted2 text-xs">DOWNLOAD</div><div id="dlVal" class="text-2xl font-bold">— Mbps</div></div>
+          <div class="card p-4"><div class="muted2 text-xs">UPLOAD</div><div id="ulVal" class="text-2xl font-bold">— Mbps</div></div>
+          <div class="card p-4"><div class="muted2 text-xs">PING</div><div id="pingVal" class="text-xl font-bold">— ms</div></div>
+          <div class="card p-4"><div class="muted2 text-xs">JITTER</div><div id="jitterVal" class="text-xl font-bold">— ms</div></div>
+          <div class="card p-4"><div class="muted2 text-xs">PACKET LOSS *</div><div id="lossVal" class="text-xl font-bold">— %</div></div>
+          <div class="card p-4"><div class="muted2 text-xs">SERVER</div><div id="serverVal" class="text-sm font-bold">Cloudflare</div></div>
+        </div>
+        <div class="card p-4 text-sm">
+          <div><span class="muted2">Network:</span> <span id="netVal">detecting…</span></div>
+          <div class="mt-1"><span class="muted2">Public IP:</span> <span id="ipVal">—</span></div>
+          <div class="mt-1"><span class="muted2">ISP:</span> <span id="ispVal">—</span></div>
+          <div class="mt-1"><span class="muted2">Location:</span> <span id="locVal">—</span></div>
+        </div>
+      </section>
+    </div>
+
+    <section class="card p-4 mt-4">
+      <h2 class="font-bold mb-2">Real-time speed graph</h2>
+      <canvas id="graph" class="w-full" height="140"></canvas>
+      <p class="muted text-xs mt-2">Blue = download, purple = upload. Each point is a real measured sample (bytes actually transferred / elapsed time).</p>
+    </section>
+
+    <section class="card p-4 mt-4">
+      <h2 class="font-bold mb-2">Detailed report</h2>
+      <pre id="report" class="whitespace-pre-wrap text-sm muted">No test run yet. Run a test to see server, timestamp, network, method and data used here.</pre>
+      <div class="flex flex-wrap gap-2 mt-3">
+        <button id="shareBtn" class="btn-grad px-5 py-2 font-semibold">Share result</button>
+        <button id="copyBtn" class="card px-5 py-2 font-semibold">Copy result</button>
+        <button id="downloadBtn" class="card px-5 py-2 font-semibold">Download report (.txt)</button>
+      </div>
+      <p class="muted2 text-xs mt-3">* Packet loss in a browser is measured as failed HTTP requests out of the requests sent. Browsers cannot send ICMP ping, so this is HTTP request loss, not ICMP packet loss — the report says so honestly.</p>
+    </section>
+  </main>
+
+  <!-- Servers -->
+  <section id="panel-servers" class="hidden mt-6 card p-5">
+    <h2 class="text-xl font-bold">Test servers</h2>
+    <p class="muted text-sm mt-1">Servers are ranked by real measured latency. Cloudflare supports the full test; jsDelivr supports download only (upload then uses Cloudflare, and the report says so).</p>
+    <div class="flex flex-wrap gap-2 mt-3">
+      <select id="serverSelect" class="flex-1 min-w-[220px]"></select>
+      <button id="autoServerBtn" class="btn-grad px-4 py-2 font-semibold">Auto — nearest server</button>
+      <button id="pingServersBtn" class="card px-4 py-2 font-semibold">Re-measure server ping</button>
+    </div>
+    <ul id="serverList" class="mt-4 space-y-2 text-sm"></ul>
+  </section>
+
+  <!-- History -->
+  <section id="panel-history" class="hidden mt-6 card p-5">
+    <div class="flex items-center justify-between"><h2 class="text-xl font-bold">Test history</h2><button id="clearHistoryBtn" class="card px-4 py-2 text-sm text-red-300">Clear history</button></div>
+    <p class="muted text-sm mt-1">Saved in this browser's local storage only.</p>
+    <ul id="historyList" class="mt-4 space-y-2 text-sm"></ul>
+  </section>
+
+  <nav class="grid grid-cols-3 gap-2 mt-6">
+    <button data-tab="dashboard" class="tabbtn active card py-3 font-semibold">Dashboard</button>
+    <button data-tab="servers" class="tabbtn card py-3 font-semibold">Servers</button>
+    <button data-tab="history" class="tabbtn card py-3 font-semibold">History</button>
+  </nav>
+
+  <footer class="muted2 text-xs text-center mt-6">
+    Measurement: download — real HTTPS GET to speed.cloudflare.com/__down (parallel streams); upload — real HTTPS POST to speed.cloudflare.com/__up; ping — 10 real HTTPS requests. If an endpoint is unavailable, the test shows an error instead of a fake result. Data use: up to ~50 MB download / ~25 MB upload per full test (less in Data Saver).
+  </footer>
+</div>
+<script>
+"use strict";
+// xyp Speed Test — REAL measurement only. No random / hardcoded speeds.
+// Download: real HTTPS GET, count bytes read / elapsed. Upload: real HTTPS POST, count bytes sent / elapsed.
+// Ping: 10 real HTTPS requests. Jitter: mean absolute difference of successive pings. Loss: failed / sent HTTP requests.
+const SERVERS = [
+  {id:"cf", name:"Cloudflare", location:"Global (nearest edge)", pingUrl:"https://speed.cloudflare.com/cdn-cgi/trace", dlUrl:"https://speed.cloudflare.com/__down?bytes=", upUrl:"https://speed.cloudflare.com/__up", full:true, latency:-1, available:false},
+  {id:"jsd", name:"jsDelivr CDN", location:"Global CDN", pingUrl:"https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js", dlUrl:"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", upUrl:null, full:false, latency:-1, available:false}
+];
+let selectedServer = SERVERS[0], testing=false, stopFlag=false, currentResult=null;
+let dlSamples=[], ulSamples=[];
+const $=id=>document.getElementById(id);
+const fmt=(n,d=2)=>n==null||!isFinite(n)?"—":n.toFixed(d);
+function showError(msg){const b=$("errorBox"); b.textContent=msg; b.classList.remove("hidden");}
+function clearError(){$("errorBox").classList.add("hidden");}
+function setPhase(t,p){$("phaseLabel").textContent=t; $("progressBar").style.width=(p||0)+"%";}
+function setLive(mbps){$("liveSpeed").textContent=fmt(mbps); const frac=Math.log10(1+Math.max(0,mbps))/Math.log10(1001); $("gaugeArc").style.strokeDashoffset=String(386*(1-Math.min(1,frac))); drawGraph();}
+function drawGraph(){
+  const c=$("graph"), ctx=c.getContext("2d"); const w=c.width=c.offsetWidth*2, h=c.height=280;
+  ctx.clearRect(0,0,w,h); ctx.strokeStyle="#24365e"; ctx.beginPath(); ctx.moveTo(0,h/2); ctx.lineTo(w,h/2); ctx.stroke();
+  const plot=(arr,color)=>{ if(arr.length<2) return; const max=Math.max(1,...arr); ctx.strokeStyle=color; ctx.lineWidth=4; ctx.beginPath();
+    arr.forEach((v,i)=>{const x=w*i/(arr.length-1), y=h-10-(v/max)*(h-20); i?ctx.lineTo(x,y):ctx.moveTo(x,y);}); ctx.stroke(); };
+  plot(dlSamples,"#38bdf8"); plot(ulSamples,"#a78bfa");
+}
+async function fetchTimeout(url, ms, opts={}){
+  const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(), ms);
+  try{ return await fetch(url,{...opts, signal:ctrl.signal}); } finally{ clearTimeout(t); }
+}
+async function singlePing(url){
+  const t0=performance.now();
+  try{
+    const r=await fetchTimeout(url+(url.includes("?")?"&":"?")+"r="+Date.now()+"-"+(window.__cb=(window.__cb||0)+1), 4000, {cache:"no-store"});
+    // Drain the (small) body so the timing covers a complete round trip.
+    try{ await r.text(); }catch(e){}
+    if(!r.ok) return -1;
+    return performance.now()-t0;
+  }catch(e){ return -1; }
+}
+async function measurePing(server){
+  const pings=[]; let failed=0;
+  for(let i=0;i<10 && !stopFlag;i++){
+    setPhase("Measuring ping… ("+(i+1)+"/10)", 5+i);
+    const ms=await singlePing(server.pingUrl);
+    if(ms<0) failed++; else pings.push(ms);
+  }
+  if(!pings.length) return null;
+  const ping=pings.reduce((a,b)=>a+b,0)/pings.length;
+  let jitter=0; if(pings.length>1){ let s=0; for(let i=1;i<pings.length;i++) s+=Math.abs(pings[i]-pings[i-1]); jitter=s/(pings.length-1); }
+  return {ping, jitter, loss:failed*100/10, ok:pings.length};
+}
+async function measureDownload(server, seconds, dataSaver){
+  let total=0; const start=performance.now(); const end=start+seconds*1000;
+  const cap=dataSaver?15e6:50e6;
+  const worker=async()=>{
+    while(!stopFlag && performance.now()<end && total<cap){
+      try{
+        const url=server.id==="cf" ? server.dlUrl+"5000000" : server.dlUrl+"?r="+Date.now()+"-"+(window.__cb=(window.__cb||0)+1);
+        const r=await fetchTimeout(url, 8000, {cache:"no-store"});
+        if(!r.ok || !r.body) break;
+        const reader=r.body.getReader();
+        for(;;){
+          if(stopFlag || performance.now()>=end) { try{reader.cancel();}catch(e){} break; }
+          const {done,value}=await reader.read();
+          if(done) break;
+          total+=value.byteLength;
+          if(total>=cap) break;
+        }
+      }catch(e){ break; }
+    }
+  };
+  const workers=Array.from({length:4},()=>worker());
+  const ticker=setInterval(()=>{ const el=(performance.now()-start)/1000; if(el>0){ const live=total*8/el/1e6; setLive(live); if(el>1) dlSamples.push(live);} },200);
+  await Promise.all(workers); clearInterval(ticker);
+  const elapsed=(performance.now()-start)/1000;
+  return {mbps: elapsed>0 ? total*8/elapsed/1e6 : 0, bytes: total};
+}
+async function measureUpload(server, seconds, dataSaver){
+  let total=0; const start=performance.now(); const end=start+seconds*1000;
+  const cap=dataSaver?8e6:25e6;
+  // Deterministic repeating bytes as the upload payload — real data sent over the network.
+  const chunk=new Uint8Array(256*1024); for(let i=0;i<chunk.length;i++) chunk[i]=0x5A+(i%16);
+  const payload=new Blob([chunk,chunk,chunk,chunk]); // 1 MB per request
+  const worker=async()=>{
+    while(!stopFlag && performance.now()<end && total<cap){
+      try{
+        const r=await fetchTimeout(server.upUrl, 8000, {method:"POST", body:payload, cache:"no-store"});
+        if(r.ok) total+=payload.size; else break;
+      }catch(e){ break; }
+    }
+  };
+  const workers=Array.from({length:4},()=>worker());
+  const ticker=setInterval(()=>{ const el=(performance.now()-start)/1000; if(el>0){ const live=total*8/el/1e6; setLive(live); if(el>1) ulSamples.push(live);} },200);
+  await Promise.all(workers); clearInterval(ticker);
+  const elapsed=(performance.now()-start)/1000;
+  return {mbps: elapsed>0 ? total*8/elapsed/1e6 : 0, bytes: total};
+}
+async function detectIpIsp(){
+  let ip="Unavailable", isp="Unavailable", loc="—";
+  try{
+    const r=await fetchTimeout("https://api.ipify.org?format=json", 5000);
+    if(r.ok){ const j=await r.json(); if(j.ip) ip=j.ip; }
+  }catch(e){}
+  try{
+    const url=ip!=="Unavailable" ? "https://ip-api.com/json/"+ip+"?fields=status,isp,org,country,city" : "https://ip-api.com/json/?fields=status,isp,org,country,city,query";
+    const r=await fetchTimeout(url, 5000);
+    if(r.ok){ const j=await r.json();
+      if(j.status==="success"){ isp=j.isp||j.org||"Unavailable"; if(ip==="Unavailable"&&j.query) ip=j.query; loc=[j.city,j.country].filter(Boolean).join(", ")||"—"; }
+    }
+  }catch(e){}
+  return {ip, isp, loc};
+}
+function networkType(){
+  const c=navigator.connection;
+  if(!c) return "Unknown (browser did not report it)";
+  return (c.effectiveType? c.effectiveType.toUpperCase()+" " : "") + (c.type||"") + " — " + (navigator.onLine?"online":"offline");
+}
+async function runTest(){
+  if(testing) return;
+  if(!navigator.onLine){ showError("No internet connection — the test cannot run."); return; }
+  testing=true; stopFlag=false; clearError(); dlSamples=[]; ulSamples=[]; currentResult=null;
+  $("startBtn").textContent="STOP"; $("gaugeWrap").classList.add("testing");
+  const dataSaver=$("dataSaver").checked;
+  const server=selectedServer;
+  const testStart=Date.now(); let dataUsed=0;
+  try{
+    setPhase("Measuring ping…",5);
+    const pingRes=await measurePing(server);
+    if(stopFlag) throw new Error("Test stopped by user.");
+    if(!pingRes) throw new Error("Ping failed: "+server.name+" ("+server.pingUrl+") is unreachable. No fake result was generated. Check your connection and try another server.");
+    setPhase("Measuring download…",20);
+    let dlObj=await measureDownload(server, dataSaver?6:10, dataSaver);
+    let dl=dlObj.mbps; dataUsed+=dlObj.bytes;
+    let dlServer=server.name+" ("+server.location+")";
+    if(stopFlag) throw new Error("Test stopped by user.");
+    if(dl<=0 && server.id!=="cf"){
+      setPhase("Download server failed — retrying on Cloudflare…",25);
+      dlObj=await measureDownload(SERVERS[0], dataSaver?6:10, dataSaver); dl=dlObj.mbps; dataUsed+=dlObj.bytes; dlServer=SERVERS[0].name+" (fallback)";
+    }
+    if(dl<=0) throw new Error("Download failed: no data could be downloaded from "+server.name+". No fake result was generated.");
+    setPhase("Measuring upload…",60);
+    const upServer=server.upUrl?server:SERVERS[0];
+    const ulObj=await measureUpload(upServer, dataSaver?5:8, dataSaver);
+    const ul=ulObj.mbps; dataUsed+=ulObj.bytes;
+    if(stopFlag) throw new Error("Test stopped by user.");
+    if(ul<=0) throw new Error("Upload failed: no data could be uploaded to "+upServer.name+". Download and ping were measured, but the full test is incomplete — no fake upload value was generated.");
+    setPhase("Detecting IP and ISP…",92);
+    const ipIsp=await detectIpIsp();
+    const durationMs=Date.now()-testStart;
+    const result={
+      timestamp:new Date().toISOString(), download:+dl.toFixed(2), upload:+ul.toFixed(2),
+      ping:+pingRes.ping.toFixed(1), jitter:+pingRes.jitter.toFixed(1), loss:+pingRes.loss.toFixed(1),
+      server:dlServer+(upServer===server?"":" / upload via "+upServer.name),
+      network:networkType(), ip:ipIsp.ip, isp:ipIsp.isp, location:ipIsp.loc,
+      method:"Download: HTTPS GET "+dlServer+" (4 parallel streams). Upload: HTTPS POST "+upServer.upUrl+". Ping: 10 real HTTPS requests to "+server.pingUrl+". Packet loss = failed HTTP requests / 10 (browser cannot do ICMP).",
+      durationSec:+(durationMs/1000).toFixed(1),
+      dataUsedMB:+(dataUsed/1048576).toFixed(1)
+    };
+    currentResult=result; finishTest(result);
+  }catch(e){
+    setPhase(e.message,0); showError(e.message);
+  }finally{
+    testing=false; $("startBtn").textContent="START TEST"; $("gaugeWrap").classList.remove("testing");
+  }
+}
+function finishTest(r){
+  setPhase("Test complete — real measurements, "+new Date(r.timestamp).toLocaleString(),100);
+  setLive(r.download);
+  $("dlVal").textContent=fmt(r.download)+" Mbps"; $("ulVal").textContent=fmt(r.upload)+" Mbps";
+  $("pingVal").textContent=fmt(r.ping,1)+" ms"; $("jitterVal").textContent=fmt(r.jitter,1)+" ms";
+  $("lossVal").textContent=fmt(r.loss,1)+" %"; $("serverVal").textContent=r.server;
+  $("netVal").textContent=r.network; $("ipVal").textContent=r.ip; $("ispVal").textContent=r.isp; $("locVal").textContent=r.location;
+  const report="xyp Speed Test — "+new Date(r.timestamp).toLocaleString()+"\nDownload: "+fmt(r.download)+" Mbps\nUpload: "+fmt(r.upload)+" Mbps\nPing: "+fmt(r.ping,1)+" ms\nJitter: "+fmt(r.jitter,1)+" ms\nPacket loss (HTTP requests): "+fmt(r.loss,1)+"%\nServer: "+r.server+"\nNetwork: "+r.network+"\nIP: "+r.ip+"\nISP: "+r.isp+"\nLocation: "+r.location+"\nMethod: "+r.method+"\nData used: "+fmt(r.dataUsedMB,1)+" MB\nDuration: "+r.durationSec+" s";
+  $("report").textContent=report;
+  saveHistory(r); renderHistory(); drawGraph();
+}
+function reportText(){ return currentResult? $("report").textContent : ""; }
+function saveHistory(r){ try{ const h=JSON.parse(localStorage.getItem("xyp_history")||"[]"); h.unshift(r); localStorage.setItem("xyp_history", JSON.stringify(h.slice(0,50))); }catch(e){} }
+function renderHistory(){
+  let h=[]; try{ h=JSON.parse(localStorage.getItem("xyp_history")||"[]"); }catch(e){}
+  $("historyList").innerHTML = h.length? h.map(r=>"<li class='card p-3'>"+new Date(r.timestamp).toLocaleString()+" — ↓ "+fmt(r.download,1)+" Mbps ↑ "+fmt(r.upload,1)+" Mbps • "+fmt(r.ping,0)+" ms • "+r.server+"</li>").join("") : "<li class='muted'>No tests yet — run your first real speed test.</li>";
+}
+function renderServers(){
+  $("serverSelect").innerHTML=SERVERS.map((s,i)=>"<option value='"+i+"'>"+s.name+" — "+s.location+"</option>").join("");
+  $("serverSelect").value=String(SERVERS.indexOf(selectedServer));
+  $("serverList").innerHTML=SERVERS.map((s,i)=>"<li class='card p-3'>"+(s===selectedServer?"✓ ":"")+s.name+" — "+s.location+" — "+(s.latency>=0? Math.round(s.latency)+" ms":"not measured yet")+(s.available?"":" — unavailable")+" — "+(s.full?"full test":"download only")+"</li>").join("");
+}
+async function pingAllServers(){
+  for(const s of SERVERS){
+    const ms=await singlePing(s.pingUrl); s.latency=ms; s.available=ms>=0;
+  }
+  SERVERS.sort((a,b)=> (a.latency<0?1e9:a.latency)-(b.latency<0?1e9:b.latency));
+  renderServers();
+}
+// Tabs
+document.querySelectorAll(".tabbtn").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll(".tabbtn").forEach(x=>x.classList.remove("active")); b.classList.add("active");
+  const t=b.dataset.tab;
+  $("panel-dashboard").classList.toggle("hidden", t!=="dashboard");
+  $("panel-servers").classList.toggle("hidden", t!=="servers");
+  $("panel-history").classList.toggle("hidden", t!=="history");
+  if(t==="history") renderHistory(); if(t==="servers") renderServers();
+}));
+$("startBtn").addEventListener("click",()=>{ if(testing){ stopFlag=true; } else runTest(); });
+$("themeBtn").addEventListener("click",()=>{ document.body.classList.toggle("light"); localStorage.setItem("xyp_theme", document.body.classList.contains("light")?"light":"dark"); });
+$("autoBtn").addEventListener("click",()=>{ const on=$("autoBtn").textContent.includes("Off"); localStorage.setItem("xyp_auto", on?"1":"0"); $("autoBtn").textContent="▶ Auto test: "+(on?"On":"Off"); });
+$("serverSelect").addEventListener("change",e=>{ selectedServer=SERVERS[+e.target.value]; renderServers(); });
+$("autoServerBtn").addEventListener("click",async()=>{ await pingAllServers(); selectedServer=SERVERS[0]; renderServers(); });
+$("pingServersBtn").addEventListener("click",pingAllServers);
+$("clearHistoryBtn").addEventListener("click",()=>{ localStorage.removeItem("xyp_history"); renderHistory(); });
+$("shareBtn").addEventListener("click",async()=>{
+  if(!currentResult){ alert("Run a test first."); return; }
+  const text=reportText();
+  if(navigator.share){ try{ await navigator.share({title:"xyp Speed Test", text}); return; }catch(e){} }
+  try{ await navigator.clipboard.writeText(text); alert("Result copied to clipboard."); }catch(e){ alert(text); }
+});
+$("copyBtn").addEventListener("click",async()=>{ if(!currentResult){ alert("Run a test first."); return; } try{ await navigator.clipboard.writeText(reportText()); alert("Result copied."); }catch(e){ alert(reportText()); } });
+$("downloadBtn").addEventListener("click",()=>{
+  if(!currentResult){ alert("Run a test first."); return; }
+  const blob=new Blob([reportText()],{type:"text/plain"}); const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download="xyp-speed-test-"+Date.now()+".txt"; a.click(); URL.revokeObjectURL(a.href);
+});
+// Init
+if(localStorage.getItem("xyp_theme")==="light") document.body.classList.add("light");
+if(localStorage.getItem("xyp_auto")==="1") $("autoBtn").textContent="▶ Auto test: On";
+$("netVal").textContent=networkType();
+renderServers(); renderHistory(); drawGraph();
+detectIpIsp().then(v=>{ $("ipVal").textContent=v.ip; $("ispVal").textContent=v.isp; $("locVal").textContent=v.loc; });
+pingAllServers().then(()=>{ if(localStorage.getItem("xyp_auto")==="1"){ const wifiOnly=$("wifiOnly").checked; const c=navigator.connection; if(!wifiOnly || !c || c.type==="wifi" || c.effectiveType) runTest(); } });
+</script>
+
+</body>
+</html>
